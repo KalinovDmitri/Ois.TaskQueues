@@ -38,10 +38,14 @@
         <Style TargetType="{x:Type DataGridCell}">
             <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
+        <Image x:Key="SettingsImage" Source="/TaskQueueClient;component/Resources/Settings.png" />
         <Image x:Key="RegisterImage" Source="/TaskQueueClient;component/Resources/Register.png" />
+        <Image x:Key="UnregisterImage" Source="/TaskQueueClient;component/Resources/Exit.png" />
         <Image x:Key="CreateComputationImage" Source="/TaskQueueClient;component/Resources/New.png" />
         <Image x:Key="CreateTaskImage" Source="/TaskQueueClient;component/Resources/NewTask.png" />
+        <Image x:Key="CreateTaskGroupImage" Source="/TaskQueueClient;component/Resources/NewTaskGroup.png" />
         <Image x:Key="CreateBarrierImage" Source="/TaskQueueClient;component/Resources/NewBarrier.png" />
+        <Image x:Key="FinishComputationImage" Source="/TaskQueueClient;component/Resources/Finish.png" />
     </Window.Resources>
     <Grid Margin="2">
         <Grid.RowDefinitions>
@@ -49,11 +53,15 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
+            <Button Command="{Binding OpenSettingsCommand}" Content="{StaticResource SettingsImage}" ToolTip="Настройки" />
+            <GridSplitter Background="Gray" Width="1" />
             <Button Command="{Binding RegisterClientCommand}" Content="{StaticResource RegisterImage}" ToolTip="Зарегистрировать" />
             <Button Command="{Binding CreateComputationCommand}" Content="{StaticResource CreateComputationImage}" ToolTip="Создать расчёт" />
-            <CheckBox Content="Задача по шаблону" IsChecked="{Binding UseTaskTemplate, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
             <Button Command="{Binding CreateTaskCommand}" Content="{StaticResource CreateTaskImage}" ToolTip="Создать задачу" />
+            <Button Command="{Binding CreateTaskGroupCommand}" Content="{StaticResource CreateTaskGroupImage}" ToolTip="Создать группу задач" />
             <Button Command="{Binding CreateBarrierCommand}" Content="{StaticResource CreateBarrierImage}" ToolTip="Создать барьер" />
+            <Button Command="{Binding FinishComputationCommand}" Content="{StaticResource FinishComputationImage}" ToolTip="Завершить расчёт" />
+            <Button Command="{Binding UnregisterClientCommand}" Content="{StaticResource UnregisterImage}" ToolTip="Разрегистрировать" />
         </StackPanel>
         <DataGrid Grid.Row="1" x:Name="EventsGrid" AutoGenerateColumns="False"
                   IsSynchronizedWithCurrentItem="True"

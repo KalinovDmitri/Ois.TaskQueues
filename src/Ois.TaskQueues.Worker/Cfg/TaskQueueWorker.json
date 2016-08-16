@@ -5,9 +5,6 @@
   // период отправки keep-alive уведомлений
   "KeepAlivePeriod": "00:00:10",
 
-  // имя реализатора, выполняющего назначаемую воркеру задачу
-  "ImplementorName": "SimpleImplementor",
-
   // категории задач, которые способен обрабатывать воркер
-  "TaskCategories": [ "GTM_Well", "GTM_Layer" ]
+  "TaskCategories": [ "TestCategory" ]
 }

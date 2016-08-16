@@ -28,6 +28,8 @@ namespace Ois.TaskQueues.Service.Infrastructure
         #region Properties
 
         public int TasksCount => Computation.TasksCount;
+
+        public int ProcessedTasksCount => Computation.ProcessedTasksCount;
         #endregion
 
         #region Constructors
@@ -69,6 +71,11 @@ namespace Ois.TaskQueues.Service.Infrastructure
         public void EnqueueTask(TaskQueueTaskEntry taskEntry)
         {
             Computation.EnqueueTask(taskEntry);
+        }
+
+        public bool TryRemoveBarrierIfFinished(Guid barrierID)
+        {
+            return Computation.TryRemoveBarrierIfFinished(barrierID);
         }
         #endregion
 

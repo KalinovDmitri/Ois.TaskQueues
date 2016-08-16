@@ -119,6 +119,16 @@ namespace Ois.TaskQueues.Service.Infrastructure
             EnqueueEvent(clientID, TaskQueueServiceEvents.ComputationCreated, eventData);
         }
 
+        public void ComputationFinished(Guid clientID, Guid computationID)
+        {
+            JObject eventData = new JObject();
+
+            eventData.Add("ClientID", new JValue(clientID));
+            eventData.Add("ComputationID", new JValue(computationID));
+
+            EnqueueEvent(clientID, TaskQueueServiceEvents.ComputationFinished, eventData);
+        }
+
         public void TaskAdded(Guid clientID, Guid computationID, Guid taskID)
         {
             JObject eventData = new JObject();

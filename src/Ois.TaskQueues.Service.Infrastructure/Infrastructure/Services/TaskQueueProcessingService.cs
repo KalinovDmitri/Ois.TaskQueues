@@ -49,7 +49,6 @@ namespace Ois.TaskQueues.Service.Infrastructure
             bool isAdded = Processors.TryAdd(computationID, processor);
             if (isAdded)
             {
-                computation.BarrierFinished += new EventHandler<TaskQueueBarrierEntry>(ComputationBarrierFinished);
                 processor.TaskAssigned += new EventHandler<TaskQueueTaskAssignedEventArgs>(ProcessorTaskAssigned);
 
                 processor.Start();
@@ -66,11 +65,24 @@ namespace Ois.TaskQueues.Service.Infrastructure
             {
                 processedEntry.StopTimer();
 
+                int remainingTasksCount = 0, processedTasksCount = 0;
                 TaskQueueTaskEntry taskEntry = processedEntry.TaskEntry;
-                bool isFinished = FinishTask(taskEntry);
+
+                bool isFinished = FinishTask(taskEntry, out remainingTasksCount, out processedTasksCount);
                 if (isFinished)
                 {
                     NotificationService.TaskFinished(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.TaskID, workerID);
+
+                    bool isBarrierFinished = TryRemoveBarrierIfFinished(taskEntry.ComputationID, taskEntry.BarrierID);
+                    if (isBarrierFinished)
+                    {
+                        NotificationService.BarrierFinished(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.BarrierID);
+                    }
+
+                    if ((remainingTasksCount == 0) && (processedTasksCount == 0))
+                    {
+                        NotificationService.QueueEmptied(taskEntry.ClientID, taskEntry.ComputationID);
+                    }
                 }
             }
         }
@@ -87,11 +99,6 @@ namespace Ois.TaskQueues.Service.Infrastructure
         #endregion
 
         #region Private class methods
-
-        private void ComputationBarrierFinished(object sender, TaskQueueBarrierEntry barrierEntry)
-        {
-            NotificationService.BarrierFinished(barrierEntry.ClientID, barrierEntry.ComputationID, barrierEntry.BarrierID);
-        }
 
         private void ProcessorTaskAssigned(object sender, TaskQueueTaskAssignedEventArgs args)
         {
@@ -128,7 +135,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
             }
         }
 
-        private bool FinishTask(TaskQueueTaskEntry taskEntry)
+        private bool FinishTask(TaskQueueTaskEntry taskEntry, out int remainingTasksCount, out int processedTasksCount)
         {
             bool result = false;
 
@@ -141,9 +148,21 @@ namespace Ois.TaskQueues.Service.Infrastructure
                 result = processor.FinishTask(taskEntry);
             }
 
-            if (processor.TasksCount == 0)
+            remainingTasksCount = processor.TasksCount;
+            processedTasksCount = processor.ProcessedTasksCount;
+
+            return result;
+        }
+
+        private bool TryRemoveBarrierIfFinished(Guid computationID, Guid barrierID)
+        {
+            bool result = false;
+
+            TaskQueueComputationProcessor processor = null;
+            bool isExists = Processors.TryGetValue(computationID, out processor);
+            if (isExists)
             {
-                NotificationService.QueueEmptied(processor.Computation.ClientID, computationID);
+                result = processor.TryRemoveBarrierIfFinished(barrierID);
             }
 
             return result;

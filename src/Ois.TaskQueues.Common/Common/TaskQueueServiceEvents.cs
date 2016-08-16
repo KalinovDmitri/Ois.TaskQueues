@@ -27,8 +27,10 @@ namespace Ois.TaskQueues
 
         QueueEmptied = 512,
 
-        WorkerDisconnected = 1024,
+        ComputationFinished = 1024,
 
-        All = 2047
+        WorkerDisconnected = 2048,
+
+        All = 4095
     }
 }

@@ -61,8 +61,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>IF "$(ConfigurationName)"=="Debug" ( copy $(TargetPath) $(SolutionDir)src\Ois.TaskQueues.Worker\bin\Debug\$(TargetFileName) ) ELSE ( copy $(TargetPath) $(SolutionDir)bin\worker\$(TargetFileName) )</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

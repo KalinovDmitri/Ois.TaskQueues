@@ -37,10 +37,6 @@ namespace Ois.TaskQueues.Worker
         /// </summary>
         public TimeSpan KeepAlivePeriod { get; set; } = TimeSpan.FromSeconds(10.0);
         /// <summary>
-        /// Возвращает или задаёт название имплементора, выполняющего обработку задачи.
-        /// </summary>
-        public string ImplementorName { get; set; } = "SimpleImplementor";
-        /// <summary>
         /// Возвращает или задаёт категории задач, которые способен обрабатывать воркер.
         /// </summary>
         public string[] TaskCategories { get; set; } = { "Unknown" };

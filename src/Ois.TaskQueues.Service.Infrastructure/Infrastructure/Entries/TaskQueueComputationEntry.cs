@@ -21,16 +21,15 @@ namespace Ois.TaskQueues.Service.Infrastructure
         private Guid BarrierID;
 
         private int CountOfTasks = 0;
-        #endregion
 
-        #region Events
-
-        public event EventHandler<TaskQueueBarrierEntry> BarrierFinished;
+        private int CountOfProcessedTasks = 0;
         #endregion
 
         #region Properties
 
         public int TasksCount => CountOfTasks;
+
+        public int ProcessedTasksCount => CountOfProcessedTasks;
         #endregion
 
         #region Constructors
@@ -94,6 +93,8 @@ namespace Ois.TaskQueues.Service.Infrastructure
             TaskQueueBarrierEntry barrierEntry = Barriers.GetOrAdd(taskEntry.BarrierID, BarrierCreator);
 
             barrierEntry.AddTaskToProcessed(taskEntry);
+
+            Interlocked.Increment(ref CountOfProcessedTasks);
         }
 
         public TaskQueueBarrierEntry AddBarrier()
@@ -137,23 +138,32 @@ namespace Ois.TaskQueues.Service.Infrastructure
             barrierEntry.EnqueueTask(taskEntry);
 
             Interlocked.Increment(ref CountOfTasks);
+            Interlocked.Decrement(ref CountOfProcessedTasks);
         }
 
         public bool FinishTask(TaskQueueTaskEntry taskEntry)
         {
-            bool result = false;
-
             TaskQueueBarrierEntry barrierEntry = Barriers.GetOrAdd(taskEntry.BarrierID, BarrierCreator);
-            barrierEntry.RemoveTaskFromProcessed(taskEntry.TaskID);
+
+            bool result = barrierEntry.RemoveTaskFromProcessed(taskEntry.TaskID);
+            if (result)
+            {
+                Interlocked.Decrement(ref CountOfProcessedTasks);
+            }
+            return result;
+        }
+
+        public bool TryRemoveBarrierIfFinished(Guid barrierID)
+        {
+            TaskQueueBarrierEntry barrierEntry = Barriers.GetOrAdd(barrierID, BarrierCreator);
 
             if ((barrierEntry.TasksCount == 0) && (barrierEntry.ProcessedTasksCount == 0))
             {
                 RemoveFinishedBarrier(barrierEntry.BarrierID);
-                result = true;
+                return true;
             }
-            else result = true;
 
-            return result;
+            return false;
         }
         #endregion
 
@@ -173,22 +183,13 @@ namespace Ois.TaskQueues.Service.Infrastructure
             return new TaskQueueBarrierEntry(ClientID, ComputationID, barrierID);
         }
 
-        private void RemoveFinishedBarrier(Guid barrierID)
+        private bool RemoveFinishedBarrier(Guid barrierID)
         {
             Guid finishedBarrierID = Guid.Empty;
             BarriersQueue.TryDequeue(out finishedBarrierID);
 
             TaskQueueBarrierEntry completedBarrier = null;
-            bool isRemoved = Barriers.TryRemove(barrierID, out completedBarrier);
-            if (isRemoved)
-            {
-                OnBarrierFinished(completedBarrier);
-            }
-        }
-
-        private void OnBarrierFinished(TaskQueueBarrierEntry barrierEntry)
-        {
-            BarrierFinished?.Invoke(this, barrierEntry);
+            return Barriers.TryRemove(barrierID, out completedBarrier);
         }
         #endregion
     }

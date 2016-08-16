@@ -12,7 +12,7 @@ namespace Ois.TaskQueues.Worker
     {
         #region Constants and fields
 
-        private const int ExecutionDelay = 10000; // 10000 milliseconds <==> 10 seconds
+        private const int ExecutionDelay = 5000; // 5000 milliseconds <==> 5 seconds
 
         private readonly ILogger Logger;
         #endregion

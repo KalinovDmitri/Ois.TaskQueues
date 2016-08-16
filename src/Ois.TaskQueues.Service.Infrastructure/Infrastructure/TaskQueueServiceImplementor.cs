@@ -115,6 +115,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
             TaskQueueComputationEntry computation = ComputationService.FinishComputation(computationID);
             if (computation != null)
             {
+                NotificationService.ComputationFinished(computation.ClientID, computation.ComputationID);
                 ProcessingService.RemoveProcessor(computation.ComputationID);
             }
 
