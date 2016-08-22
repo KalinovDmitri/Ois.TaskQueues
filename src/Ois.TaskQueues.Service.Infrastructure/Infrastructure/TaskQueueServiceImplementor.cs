@@ -14,6 +14,8 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         #region Properties
 
+        public TaskQueueBalancingService BalancingService { get; set; }
+
         public TaskQueueClientService ClientService { get; set; }
 
         public TaskQueueComputationService ComputationService { get; set; }
@@ -81,8 +83,9 @@ namespace Ois.TaskQueues.Service.Infrastructure
             TaskQueueTaskEntry taskEntry = ComputationService.AddTask(computationID, taskCategory, taskData);
             if (taskEntry != null)
             {
-                NotificationService.TaskAdded(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.TaskID);
                 taskID = taskEntry.TaskID;
+                NotificationService.TaskAdded(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.TaskID);
+                BalancingService.TaskAdded();
             }
 
             Logger.Debug($"AddTask response: TaskID = {{{taskID}}}");
@@ -146,10 +149,10 @@ namespace Ois.TaskQueues.Service.Infrastructure
             Logger.Debug($"RegisterWorker request: WorkerID = {{{workerID}}}");
 
             bool result = WorkerService.AddWorker(workerID, worker, taskCategories);
-
             if (result)
             {
                 NotificationService.WorkerConnected(workerID, taskCategories);
+                BalancingService.WorkerConnected();
             }
 
             Logger.Debug($"RegisterWorker response: result = {result}");
@@ -170,7 +173,11 @@ namespace Ois.TaskQueues.Service.Infrastructure
         {
             Logger.Debug($"Enter AcknowledgeTask;\r\nWorkerID = {{{workerID}}}\r\nTaskID = {{{taskID}}}");
 
-            ProcessingService.AcknowledgeTask(workerID, taskID);
+            bool isFinished = ProcessingService.AcknowledgeTask(workerID, taskID);
+            if (isFinished)
+            {
+                BalancingService.TaskFinished();
+            }
 
             Logger.Debug("Exit AcknowledgeTask");
         }
@@ -180,10 +187,10 @@ namespace Ois.TaskQueues.Service.Infrastructure
             Logger.Debug($"UnregisterWorker request: WorkerID = {{{workerID}}}");
 
             bool result = WorkerService.RemoveWorker(workerID);
-
             if (result)
             {
                 NotificationService.WorkerDisconnected(workerID);
+                BalancingService.WorkerDisconnected();
             }
 
             Logger.Debug($"UnregisterWorker response: result = {result}");

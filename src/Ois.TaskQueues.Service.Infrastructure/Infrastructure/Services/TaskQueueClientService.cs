@@ -10,18 +10,6 @@ namespace Ois.TaskQueues.Service.Infrastructure
         private ConcurrentDictionary<Guid, TaskQueueClientEntry> Clients;
         #endregion
 
-        #region Events
-
-        public event EventHandler<TaskQueueClientEntry> ClientRegistered;
-
-        public event EventHandler<TaskQueueClientEntry> ClientUnregistered;
-        #endregion
-
-        #region Properties
-
-        public TaskQueueNotificationService NotificationService { get; set; }
-        #endregion
-
         #region Constructors
 
         public TaskQueueClientService()
@@ -55,19 +43,6 @@ namespace Ois.TaskQueues.Service.Infrastructure
                 clientEntry.Dispose();
             }
             return isRemoved;
-        }
-        #endregion
-
-        #region Private class methods
-
-        private void OnClientRegistered(TaskQueueClientEntry clientEntry)
-        {
-            ClientRegistered?.Invoke(this, clientEntry);
-        }
-
-        private void OnClientUnregistered(TaskQueueClientEntry clientEntry)
-        {
-            ClientUnregistered?.Invoke(this, clientEntry);
         }
         #endregion
     }

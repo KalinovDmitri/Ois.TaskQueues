@@ -155,14 +155,16 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         public bool TryRemoveBarrierIfFinished(Guid barrierID)
         {
-            TaskQueueBarrierEntry barrierEntry = Barriers.GetOrAdd(barrierID, BarrierCreator);
-
-            if ((barrierEntry.TasksCount == 0) && (barrierEntry.ProcessedTasksCount == 0))
+            TaskQueueBarrierEntry barrierEntry = null;
+            bool exists = Barriers.TryGetValue(barrierID, out barrierEntry);
+            if (exists)
             {
-                RemoveFinishedBarrier(barrierEntry.BarrierID);
-                return true;
+                if ((barrierEntry.TasksCount == 0) && (barrierEntry.ProcessedTasksCount == 0))
+                {
+                    RemoveFinishedBarrier(barrierEntry.BarrierID);
+                    return true;
+                }
             }
-
             return false;
         }
         #endregion

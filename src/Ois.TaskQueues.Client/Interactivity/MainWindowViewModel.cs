@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Input;
 
@@ -86,6 +87,21 @@ namespace Ois.TaskQueues.Client.Interactivity
         public ObservableCollection<OccuredEventViewModel> OccuredEvents
         {
             get { return EventsCollection; }
+        }
+        #endregion
+
+        #region Events
+
+        public event NotifyCollectionChangedEventHandler EventsCollectionChanged
+        {
+            add
+            {
+                EventsCollection.CollectionChanged += value;
+            }
+            remove
+            {
+                EventsCollection.CollectionChanged -= value;
+            }
         }
         #endregion
 

@@ -55,11 +55,12 @@ namespace Ois.TaskQueues.Service.Infrastructure
             }
         }
 
-        public void AcknowledgeTask(Guid workerID, Guid taskID)
+        public bool AcknowledgeTask(Guid workerID, Guid taskID)
         {
             WorkerService.ReleaseWorker(workerID);
 
             TaskQueueProcessedTaskEntry processedEntry = null;
+            bool isFinished = false;
             bool isRemoved = ProcessedTasks.TryRemove(taskID, out processedEntry);
             if (isRemoved)
             {
@@ -68,7 +69,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
                 int remainingTasksCount = 0, processedTasksCount = 0;
                 TaskQueueTaskEntry taskEntry = processedEntry.TaskEntry;
 
-                bool isFinished = FinishTask(taskEntry, out remainingTasksCount, out processedTasksCount);
+                isFinished = FinishTask(taskEntry, out remainingTasksCount, out processedTasksCount);
                 if (isFinished)
                 {
                     NotificationService.TaskFinished(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.TaskID, workerID);
@@ -85,6 +86,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
                     }
                 }
             }
+            return isRemoved && isFinished;
         }
 
         public void RemoveProcessor(Guid computationID)

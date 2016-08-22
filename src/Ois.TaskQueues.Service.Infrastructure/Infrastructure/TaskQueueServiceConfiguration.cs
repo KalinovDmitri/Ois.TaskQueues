@@ -49,6 +49,14 @@ namespace Ois.TaskQueues
         /// </summary>
         public int WorkersInitialCount { get; set; } = 1;
         /// <summary>
+        /// Возвращает или задаёт максимально допустимое количество запущенных воркеров. Значение по умолчанию - 3.
+        /// </summary>
+        public int WorkersMaxCount { get; set; } = 3;
+        /// <summary>
+        /// Возвращает или задаёт минимально допустимое количество запущенных воркеров. Значение по умолчанию - 1.
+        /// </summary>
+        public int WorkersMinCount { get; set; } = 1;
+        /// <summary>
         /// Возвращает или задаёт путь к файлу для запуска нового воркера
         /// </summary>
         public string WorkersRunFile { get; set; } = "Balancing\\RunWorker.cmd";

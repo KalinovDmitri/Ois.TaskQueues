@@ -40,6 +40,12 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Balancing\RunWorker.cmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Balancing\StopWorker.cmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Cfg\TaskQueueService.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -114,9 +120,7 @@
     <Compile Include="Services\TaskQueueWorkerService.cs" />
     <Compile Include="Services\TaskQueueWorkerServiceHostManager.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Balancing\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="queue.ico" />
   </ItemGroup>

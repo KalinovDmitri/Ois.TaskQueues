@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Specialized;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace Ois.TaskQueues.Client.Windows
 {
@@ -20,7 +20,9 @@ namespace Ois.TaskQueues.Client.Windows
         {
             InitializeComponent();
 
-            DataContext = ViewModel = new MainWindowViewModel();
+            MainWindowViewModel viewModel = new MainWindowViewModel();
+            viewModel.EventsCollectionChanged += new NotifyCollectionChangedEventHandler(EventsChanged);
+            DataContext = ViewModel = viewModel;
         }
         #endregion
 
@@ -34,11 +36,19 @@ namespace Ois.TaskQueues.Client.Windows
         }
         #endregion
 
-        private void EventsGridRowLoading(object sender, DataGridRowEventArgs args)
+        #region Event handlers
+
+        private void EventsChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            int itemIndex = EventsGrid.Items.Count - 1;
-            object item = EventsGrid.Items.GetItemAt(itemIndex);
-            EventsGrid.ScrollIntoView(item);
+            if (args.Action == NotifyCollectionChangedAction.Add)
+            {
+                int itemIndex = (sender as IList).Count - 1;
+
+                object item = EventsGrid.Items.GetItemAt(itemIndex);
+
+                EventsGrid.ScrollIntoView(item);
+            }
         }
+        #endregion
     }
 }

@@ -68,10 +68,11 @@ namespace Ois.TaskQueues.Service.Infrastructure
         {
             TokenSource.Cancel();
 
-            if (ExecutionTask != null)
+            Task executionTask = ExecutionTask;
+            if (executionTask != null)
             {
-                ExecutionTask.Wait();
-                ExecutionTask.Dispose();
+                executionTask.Wait();
+                executionTask.Dispose();
             }
         }
         #endregion
