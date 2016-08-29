@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 
@@ -297,7 +298,8 @@ namespace Ois.TaskQueues.Client.Interactivity
 
             for (int index = 0; index < tasksCount; ++index)
             {
-                Client.CreateTask(ComputationID, TestTaskCategory, TestTaskData);
+                Guid taskID = Client.CreateTask(ComputationID, TestTaskCategory, TestTaskData);
+                Thread.Sleep(100);
             }
         }
 
