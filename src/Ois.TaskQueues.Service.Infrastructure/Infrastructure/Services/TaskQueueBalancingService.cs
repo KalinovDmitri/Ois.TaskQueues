@@ -16,9 +16,9 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         private const int RunningStoppingDelay = 1000; // 1 second
 
-        private const string WorkerRunFileNotExists = "";
+        private const string WorkerRunFileNotExists = "Worker's run-file does not exists.";
 
-        private const string WorkerStopFileNotExists = "";
+        private const string WorkerStopFileNotExists = "Worker's stop-file does not exists.";
 
         private readonly ILogger Logger;
 
