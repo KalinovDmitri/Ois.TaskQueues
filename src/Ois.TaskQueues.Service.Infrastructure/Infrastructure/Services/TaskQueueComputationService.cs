@@ -9,8 +9,6 @@ namespace Ois.TaskQueues.Service.Infrastructure
         #region Constants and fields
         
         private readonly ConcurrentDictionary<Guid, TaskQueueComputationEntry> Computations;
-
-        private readonly Func<Guid, TaskQueueComputationEntry> ComputationCreator;
         #endregion
 
         #region Constructors
@@ -18,8 +16,6 @@ namespace Ois.TaskQueues.Service.Infrastructure
         public TaskQueueComputationService()
         {
             Computations = new ConcurrentDictionary<Guid, TaskQueueComputationEntry>();
-
-            ComputationCreator = new Func<Guid, TaskQueueComputationEntry>(CreateComputationEntry);
         }
         #endregion
 
@@ -38,18 +34,28 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         public TaskQueueTaskEntry AddTask(Guid computationID, string taskCategory, string taskData)
         {
-            TaskQueueComputationEntry computation = Computations.GetOrAdd(computationID, ComputationCreator);
-            
-            TaskQueueTaskEntry taskEntry = computation.AddTask(taskCategory, taskData);
+            TaskQueueTaskEntry taskEntry = null;
+
+            TaskQueueComputationEntry computation = null;
+            bool isExists = Computations.TryGetValue(computationID, out computation);
+            if (isExists)
+            {
+                taskEntry = computation.AddTask(taskCategory, taskData);
+            }
 
             return taskEntry;
         }
 
         public TaskQueueBarrierEntry AddBarrier(Guid computationID)
         {
-            TaskQueueComputationEntry computation = Computations.GetOrAdd(computationID, ComputationCreator);
-
-            TaskQueueBarrierEntry barrier = computation.AddBarrier();
+            TaskQueueBarrierEntry barrier = null;
+            
+            TaskQueueComputationEntry computation = null;
+            bool isExists = Computations.TryGetValue(computationID, out computation);
+            if (isExists)
+            {
+                barrier = computation.AddBarrier();
+            }
 
             return barrier;
         }
@@ -61,14 +67,6 @@ namespace Ois.TaskQueues.Service.Infrastructure
             bool isRemoved = Computations.TryRemove(computationID, out computation);
 
             return (isRemoved) ? computation : null;
-        }
-        #endregion
-
-        #region Private class methods
-
-        private TaskQueueComputationEntry CreateComputationEntry(Guid computationID)
-        {
-            return new TaskQueueComputationEntry(Guid.Empty, computationID);
         }
         #endregion
     }

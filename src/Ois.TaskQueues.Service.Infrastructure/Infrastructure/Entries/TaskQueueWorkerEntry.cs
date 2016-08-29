@@ -34,7 +34,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
         private TaskQueueWorkerEntry()
         {
             IsDisposed = false;
-            LastAliveTime = DateTime.Now;
+            LastAliveTime = DateTime.UtcNow;
 
             AvailabilityTimer = new Timer(CheckAvailability, null, AvailabilityInterval, AvailabilityInterval);
         }
@@ -103,7 +103,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
             bool isLocked = Monitor.TryEnter(LockObject, LockTimeout);
             if (isLocked)
             {
-                LastAliveTime = DateTime.Now;
+                LastAliveTime = DateTime.UtcNow;
                 Monitor.Exit(LockObject);
             }
         }
@@ -113,7 +113,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         private void CheckAvailability(object state)
         {
-            TimeSpan difference = DateTime.Now - LastAliveTime;
+            TimeSpan difference = DateTime.UtcNow - LastAliveTime;
             if (difference.TotalSeconds > MaxAvailabilityDifference)
             {
                 Dispose();
