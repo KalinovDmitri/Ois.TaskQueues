@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,19 +17,45 @@ namespace Ois.TaskQueues.Client.Tests
         [TestMethod]
         public void IsCallbackMethodExecutesSuccessfully()
         {
-            TaskQueueClient client = new TaskQueueClient("net.tcp://DKalinov-PC:8788/tqservice");
+            TcpClient client = new TcpClient();
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Loopback, 8788);
 
-            ManualResetEvent waitEvent = new ManualResetEvent(false);
-
-            client.EventOccured += (s, args) =>
+            try
             {
-                Console.WriteLine(args.EventType);
-                Console.WriteLine(args.EventData);
-                waitEvent.Set();
-            };
+                client.Connect(endpoint);
+                if (client.Connected)
+                {
+                    TaskQueueClient taskClient = new TaskQueueClient("net.tcp://DKalinov-PC:8788/tqservice");
 
-            client.Register(false, TaskQueueServiceEvents.All);
-            waitEvent.WaitOne();
+                    ManualResetEvent waitEvent = new ManualResetEvent(false);
+
+                    taskClient.EventOccured += (s, args) =>
+                    {
+                        Console.WriteLine(args.EventType);
+                        Console.WriteLine(args.EventData);
+                        waitEvent.Set();
+                    };
+
+                    taskClient.Register(false, TaskQueueServiceEvents.All);
+                    waitEvent.WaitOne();
+                }
+            }
+            catch (SocketException socketExc)
+            {
+                Console.WriteLine(socketExc);
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine(exc);
+            }
+            finally
+            {
+                if (client.Connected)
+                {
+                    client.Close();
+                }
+                client = null;
+            }
         }
         #endregion
     }

@@ -42,6 +42,12 @@ namespace Ois.TaskQueues.Service.Infrastructure.Tests
             var implementor = Container.Resolve<TaskQueueServiceImplementor>();
             
             Assert.IsNotNull(implementor);
+            Assert.IsNotNull(implementor.BalancingService);
+            Assert.IsNotNull(implementor.ClientService);
+            Assert.IsNotNull(implementor.ComputationService);
+            Assert.IsNotNull(implementor.NotificationService);
+            Assert.IsNotNull(implementor.ProcessingService);
+            Assert.IsNotNull(implementor.WorkerService);
         }
         #endregion
     }
