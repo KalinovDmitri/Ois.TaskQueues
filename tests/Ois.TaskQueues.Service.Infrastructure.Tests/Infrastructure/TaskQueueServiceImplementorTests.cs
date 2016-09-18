@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -54,6 +55,8 @@ namespace Ois.TaskQueues.Service.Infrastructure.Tests
         public void IsQueueLifecycleWorksSuccessfully()
         {
             var implementor = Container.Resolve<TaskQueueServiceImplementor>();
+            Container.Resolve<TaskQueueNotificationService>().Start();
+
             var client = Container.Resolve<TaskQueueClientMock>();
 
             Guid clientID = client.ClientID;
@@ -73,6 +76,8 @@ namespace Ois.TaskQueues.Service.Infrastructure.Tests
 
             bool unregistered = implementor.UnregisterClient(clientID);
             Assert.IsTrue(unregistered);
+
+            Thread.Sleep(2000);
         }
         #endregion
     }
