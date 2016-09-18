@@ -26,7 +26,7 @@ namespace Ois.TaskQueues.Service.Modules
             builder.RegisterType<TaskQueueClientService>().SingleInstance();
             builder.RegisterType<TaskQueueQueueService>().SingleInstance();
             builder.RegisterType<TaskQueueWorkerService>().SingleInstance();
-            builder.RegisterType<TaskQueueProcessingService>().PropertiesAutowired(PropertyWiringOptions.None).SingleInstance();
+            builder.RegisterType<TaskQueueProcessingService>().SingleInstance();
 
             builder.RegisterType<TaskQueueServiceImplementor>().PropertiesAutowired(PropertyWiringOptions.None).SingleInstance();
         }

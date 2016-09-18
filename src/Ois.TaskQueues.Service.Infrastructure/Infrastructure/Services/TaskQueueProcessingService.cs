@@ -10,6 +10,8 @@ namespace Ois.TaskQueues.Service.Infrastructure
     {
         #region Constants and fields
 
+        private readonly TaskQueueServiceConfiguration Configuration;
+
         private readonly TaskQueueNotificationService NotificationService;
 
         private readonly TaskQueueWorkerService WorkerService;
@@ -19,15 +21,12 @@ namespace Ois.TaskQueues.Service.Infrastructure
         private readonly ConcurrentDictionary<Guid, TaskQueueQueueProcessor> Processors; // dictionary QueueID <--> QueueProcessor
         #endregion
 
-        #region Properties
-
-        public TaskQueueServiceConfiguration Configuration { get; set; }
-        #endregion
-
         #region Constructors
 
         private TaskQueueProcessingService()
         {
+            Configuration = TaskQueueServiceConfiguration.Instance;
+
             ProcessedTasks = new ConcurrentDictionary<Guid, TaskQueueProcessedTaskEntry>();
             Processors = new ConcurrentDictionary<Guid, TaskQueueQueueProcessor>();
         }
