@@ -11,6 +11,7 @@ namespace Ois.TaskQueues.Worker
     using Communication;
     using Infrastructure;
 
+    [CallbackBehavior(AutomaticSessionShutdown = false)]
     public sealed class TaskQueueWorker : ITaskQueueWorkerCallback, IStartable, IDisposable
     {
         #region Constants and fields

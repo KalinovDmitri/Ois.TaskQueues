@@ -5,6 +5,7 @@ using System.Xml;
 
 namespace Ois.TaskQueues.Communication
 {
+    [CallbackBehavior(AutomaticSessionShutdown = false)]
     public sealed class TaskQueueClient : ITaskQueueClientCallback, IDisposable
     {
         #region Constants and fields

@@ -5,7 +5,11 @@ namespace Ois.TaskQueues.Communication
 {
     using Service.Infrastructure;
 
-    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall, UseSynchronizationContext = false)]
+    [ServiceBehavior(
+        AutomaticSessionShutdown = false,
+        ConcurrencyMode = ConcurrencyMode.Multiple,
+        InstanceContextMode = InstanceContextMode.PerCall,
+        UseSynchronizationContext = false)]
     internal sealed class TaskQueueWorkerService : ITaskQueueWorkerService
     {
         #region Constants and fields
