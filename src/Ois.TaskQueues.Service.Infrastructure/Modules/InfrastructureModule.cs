@@ -24,7 +24,7 @@ namespace Ois.TaskQueues.Service.Modules
             builder.RegisterType<TaskQueueBalancingService>().As<IStartable, TaskQueueBalancingService>().SingleInstance();
             builder.RegisterType<TaskQueueNotificationService>().As<IStartable, TaskQueueNotificationService>().SingleInstance();
             builder.RegisterType<TaskQueueClientService>().SingleInstance();
-            builder.RegisterType<TaskQueueComputationService>().SingleInstance();
+            builder.RegisterType<TaskQueueQueueService>().SingleInstance();
             builder.RegisterType<TaskQueueWorkerService>().SingleInstance();
             builder.RegisterType<TaskQueueProcessingService>().PropertiesAutowired(PropertyWiringOptions.None).SingleInstance();
 

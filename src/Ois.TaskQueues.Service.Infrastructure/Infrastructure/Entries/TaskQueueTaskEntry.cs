@@ -10,9 +10,9 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         public readonly Guid ClientID;
 
-        public readonly Guid BarrierID;
+        public readonly Guid QueueID;
 
-        public readonly Guid ComputationID;
+        public readonly Guid BarrierID;
 
         public readonly Guid TaskID;
 
@@ -28,10 +28,10 @@ namespace Ois.TaskQueues.Service.Infrastructure
             TaskID = Guid.NewGuid();
         }
 
-        public TaskQueueTaskEntry(Guid clientID, Guid computationID, Guid barrierID, string taskCategory, string taskData) : this()
+        public TaskQueueTaskEntry(Guid clientID, Guid queueID, Guid barrierID, string taskCategory, string taskData) : this()
         {
             ClientID = clientID;
-            ComputationID = computationID;
+            QueueID = queueID;
             BarrierID = barrierID;
             TaskCategory = taskCategory;
             TaskData = taskData;
@@ -44,7 +44,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
         {
             TaskQueueTaskEntry other = obj as TaskQueueTaskEntry;
 
-            return (other != null) && (ComputationID == other.ComputationID) && (TaskID == other.TaskID);
+            return (other != null) && (QueueID == other.QueueID) && (TaskID == other.TaskID);
         }
 
         public override int GetHashCode()

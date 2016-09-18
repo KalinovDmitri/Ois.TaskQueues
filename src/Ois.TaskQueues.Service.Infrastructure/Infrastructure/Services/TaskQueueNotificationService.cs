@@ -110,89 +110,89 @@ namespace Ois.TaskQueues.Service.Infrastructure
             }
         }
 
-        public void ComputationCreated(Guid clientID, Guid computationID)
+        public void QueueCreated(Guid clientID, Guid queueID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
 
-            EnqueueEvent(clientID, TaskQueueServiceEvents.ComputationCreated, eventData);
+            EnqueueEvent(clientID, TaskQueueServiceEvents.QueueCreated, eventData);
         }
 
-        public void ComputationFinished(Guid clientID, Guid computationID)
+        public void QueueRemoved(Guid clientID, Guid queueID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
 
-            EnqueueEvent(clientID, TaskQueueServiceEvents.ComputationFinished, eventData);
+            EnqueueEvent(clientID, TaskQueueServiceEvents.QueueRemoved, eventData);
         }
 
-        public void TaskAdded(Guid clientID, Guid computationID, Guid taskID)
+        public void TaskAdded(Guid clientID, Guid queueID, Guid taskID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
             eventData.Add("TaskID", new JValue(taskID));
 
             EnqueueEvent(clientID, TaskQueueServiceEvents.TaskCreated, eventData);
         }
 
-        public void TaskAssigned(Guid clientID, Guid computationID, Guid taskID, Guid workerID)
+        public void TaskAssigned(Guid clientID, Guid queueID, Guid taskID, Guid workerID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
             eventData.Add("TaskID", new JValue(taskID));
             eventData.Add("WorkerID", new JValue(workerID));
 
             EnqueueEvent(clientID, TaskQueueServiceEvents.TaskAssigned, eventData);
         }
 
-        public void TaskFinished(Guid clientID, Guid computationID, Guid taskID, Guid workerID)
+        public void TaskFinished(Guid clientID, Guid queueID, Guid taskID, Guid workerID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
             eventData.Add("TaskID", new JValue(taskID));
             eventData.Add("WorkerID", new JValue(workerID));
 
             EnqueueEvent(clientID, TaskQueueServiceEvents.TaskFinished, eventData);
         }
 
-        public void BarrierAdded(Guid clientID, Guid computationID, Guid barrierID)
+        public void BarrierAdded(Guid clientID, Guid queueID, Guid barrierID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
             eventData.Add("BarrierID", new JValue(barrierID));
 
             EnqueueEvent(clientID, TaskQueueServiceEvents.BarrierCreated, eventData);
         }
 
-        public void BarrierFinished(Guid clientID, Guid computationID, Guid barrierID)
+        public void BarrierFinished(Guid clientID, Guid queueID, Guid barrierID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
             eventData.Add("BarrierID", new JValue(barrierID));
 
             EnqueueEvent(clientID, TaskQueueServiceEvents.BarrierFinished, eventData);
         }
 
-        public void QueueEmptied(Guid clientID, Guid computationID)
+        public void QueueEmptied(Guid clientID, Guid queueID)
         {
             JObject eventData = new JObject();
 
             eventData.Add("ClientID", new JValue(clientID));
-            eventData.Add("ComputationID", new JValue(computationID));
+            eventData.Add("QueueID", new JValue(queueID));
 
             EnqueueEvent(clientID, TaskQueueServiceEvents.QueueEmptied, eventData);
         }

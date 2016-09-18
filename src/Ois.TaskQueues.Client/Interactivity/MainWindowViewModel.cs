@@ -38,7 +38,7 @@ namespace Ois.TaskQueues.Client.Interactivity
 
         private bool UseTaskTemplateValue = true;
 
-        private Guid ComputationID = Guid.Empty;
+        private Guid QueueID = Guid.Empty;
 
         private Window SettingsEditor;
         #endregion
@@ -55,12 +55,12 @@ namespace Ois.TaskQueues.Client.Interactivity
             }
         }
 
-        public Guid CurrentComputationID
+        public Guid CurrentQueueID
         {
-            get { return ComputationID; }
+            get { return QueueID; }
             private set
             {
-                ComputationID = value;
+                QueueID = value;
                 RaisePropertyChanged();
             }
         }
@@ -111,11 +111,11 @@ namespace Ois.TaskQueues.Client.Interactivity
         private DelegateCommand CommandOpenSettings;
         private DelegateCommand CommandRegisterClient;
         private DelegateCommand CommandUnregisterClient;
-        private DelegateCommand CommandCreateComputation;
+        private DelegateCommand CommandCreateQueue;
         private DelegateCommand CommandCreateTask;
         private DelegateCommand CommandCreateTaskGroup;
         private DelegateCommand CommandCreateBarrier;
-        private DelegateCommand CommandFinishComputation;
+        private DelegateCommand CommandRemoveQueue;
 
         public ICommand OpenSettingsCommand
         {
@@ -141,11 +141,11 @@ namespace Ois.TaskQueues.Client.Interactivity
             }
         }
 
-        public ICommand CreateComputationCommand
+        public ICommand CreateQueueCommand
         {
             get
             {
-                return CommandCreateComputation ?? (CommandCreateComputation = new DelegateCommand(CreateComputation, CanCreateComputation));
+                return CommandCreateQueue ?? (CommandCreateQueue = new DelegateCommand(CreateQueue, CanCreateQueue));
             }
         }
 
@@ -173,11 +173,11 @@ namespace Ois.TaskQueues.Client.Interactivity
             }
         }
 
-        public ICommand FinishComputationCommand
+        public ICommand RemoveQueueCommand
         {
             get
             {
-                return CommandFinishComputation ?? (CommandFinishComputation = new DelegateCommand(FinishComputation, CanFinishComputation));
+                return CommandRemoveQueue ?? (CommandRemoveQueue = new DelegateCommand(RemoveQueue, CanRemoveQueue));
             }
         }
         #endregion
@@ -201,10 +201,10 @@ namespace Ois.TaskQueues.Client.Interactivity
         {
             try
             {
-                Guid computationID = ComputationID;
-                if (computationID != Guid.Empty)
+                Guid queueID = QueueID;
+                if (queueID != Guid.Empty)
                 {
-                    Client.FinishComputation(computationID);
+                    Client.RemoveQueue(queueID);
                 }
 
                 Client.Dispose();
@@ -246,10 +246,10 @@ namespace Ois.TaskQueues.Client.Interactivity
 
         private void UnregisterClient()
         {
-            Guid computationID = ComputationID;
-            if (computationID != Guid.Empty)
+            Guid queueID = QueueID;
+            if (queueID != Guid.Empty)
             {
-                Client.FinishComputation(computationID);
+                Client.RemoveQueue(queueID);
             }
 
             bool result = Client.Unregister();
@@ -259,19 +259,19 @@ namespace Ois.TaskQueues.Client.Interactivity
             }
         }
 
-        private bool CanCreateComputation()
+        private bool CanCreateQueue()
         {
             return (Client != null) && ClientConnectedValue;
         }
 
-        private void CreateComputation()
+        private void CreateQueue()
         {
-            CurrentComputationID = Client.CreateComputation();
+            CurrentQueueID = Client.CreateQueue();
         }
 
         private bool CanCreateTask()
         {
-            return (Client != null) && (ComputationID != Guid.Empty);
+            return (Client != null) && (QueueID != Guid.Empty);
         }
 
         private void CreateTask()
@@ -280,7 +280,7 @@ namespace Ois.TaskQueues.Client.Interactivity
 
             if (UseTaskTemplateValue)
             {
-                taskID = Client.CreateTask(ComputationID, TestTaskCategory, TestTaskData);
+                taskID = Client.CreateTask(QueueID, TestTaskCategory, TestTaskData);
                 return;
             }
 
@@ -289,7 +289,7 @@ namespace Ois.TaskQueues.Client.Interactivity
             string taskCategory = taskInfo[0];
             string taskData = taskInfo[1];
 
-            taskID = Client.CreateTask(ComputationID, taskCategory, taskData);
+            taskID = Client.CreateTask(QueueID, taskCategory, taskData);
         }
 
         private void CreateTaskGroup()
@@ -298,31 +298,31 @@ namespace Ois.TaskQueues.Client.Interactivity
 
             for (int index = 0; index < tasksCount; ++index)
             {
-                Guid taskID = Client.CreateTask(ComputationID, TestTaskCategory, TestTaskData);
+                Guid taskID = Client.CreateTask(QueueID, TestTaskCategory, TestTaskData);
                 Thread.Sleep(100);
             }
         }
 
         private bool CanCreateBarrier()
         {
-            return (Client != null) && (ComputationID != Guid.Empty);
+            return (Client != null) && (QueueID != Guid.Empty);
         }
 
         private void CreateBarrier()
         {
-            Guid barrierID = Client.CreateBarrier(ComputationID);
+            Guid barrierID = Client.CreateBarrier(QueueID);
         }
 
-        private bool CanFinishComputation()
+        private bool CanRemoveQueue()
         {
-            return (Client != null) && (ComputationID != Guid.Empty);
+            return (Client != null) && (QueueID != Guid.Empty);
         }
 
-        private void FinishComputation()
+        private void RemoveQueue()
         {
-            Client.FinishComputation(ComputationID);
+            Client.RemoveQueue(QueueID);
 
-            CurrentComputationID = Guid.Empty;
+            CurrentQueueID = Guid.Empty;
         }
         #endregion
 

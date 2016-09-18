@@ -36,27 +36,27 @@ namespace Ois.TaskQueues.Communication
             return result;
         }
 
-        public Guid CreateComputation(Guid clientID)
+        public Guid CreateQueue(Guid clientID)
         {
-            Guid computationID = Implementor.CreateComputation(clientID);
-            return computationID;
+            Guid queueID = Implementor.CreateQueue(clientID);
+            return queueID;
         }
 
-        public Guid AddTask(Guid computationID, string taskCategory, string taskData)
+        public Guid AddTask(Guid queueID, string taskCategory, string taskData)
         {
-            Guid taskID = Implementor.AddTask(computationID, taskCategory, taskData);
+            Guid taskID = Implementor.AddTask(queueID, taskCategory, taskData);
             return taskID;
         }
 
-        public Guid AddBarrier(Guid computationID)
+        public Guid AddBarrier(Guid queueID)
         {
-            Guid barrierID = Implementor.AddBarrier(computationID);
+            Guid barrierID = Implementor.AddBarrier(queueID);
             return barrierID;
         }
 
-        public void FinishComputation(Guid computationID)
+        public void RemoveQueue(Guid queueID)
         {
-            Implementor.FinishComputation(computationID);
+            Implementor.RemoveQueue(queueID);
         }
 
         public bool UnregisterClient(Guid clientID)

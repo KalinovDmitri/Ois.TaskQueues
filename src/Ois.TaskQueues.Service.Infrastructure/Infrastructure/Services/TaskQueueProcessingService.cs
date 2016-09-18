@@ -16,7 +16,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         private readonly ConcurrentDictionary<Guid, TaskQueueProcessedTaskEntry> ProcessedTasks; // dictionary TaskID <--> ProcessedTaskEntry
 
-        private readonly ConcurrentDictionary<Guid, TaskQueueComputationProcessor> Processors; // dictionary ComputationID <--> ComputationProcessor
+        private readonly ConcurrentDictionary<Guid, TaskQueueQueueProcessor> Processors; // dictionary QueueID <--> QueueProcessor
         #endregion
 
         #region Properties
@@ -29,7 +29,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
         private TaskQueueProcessingService()
         {
             ProcessedTasks = new ConcurrentDictionary<Guid, TaskQueueProcessedTaskEntry>();
-            Processors = new ConcurrentDictionary<Guid, TaskQueueComputationProcessor>();
+            Processors = new ConcurrentDictionary<Guid, TaskQueueQueueProcessor>();
         }
 
         public TaskQueueProcessingService(TaskQueueNotificationService notificationService, TaskQueueWorkerService workerService) : this()
@@ -41,12 +41,12 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         #region Public class methods
 
-        public void AddProcessor(TaskQueueComputationEntry computation)
+        public void AddProcessor(TaskQueueQueueEntry queue)
         {
-            Guid computationID = computation.ComputationID;
+            Guid queueID = queue.QueueID;
 
-            var processor = new TaskQueueComputationProcessor(WorkerService, computation);
-            bool isAdded = Processors.TryAdd(computationID, processor);
+            var processor = new TaskQueueQueueProcessor(WorkerService, queue);
+            bool isAdded = Processors.TryAdd(queueID, processor);
             if (isAdded)
             {
                 processor.TaskAssigned += new EventHandler<TaskQueueTaskAssignedEventArgs>(ProcessorTaskAssigned);
@@ -72,27 +72,27 @@ namespace Ois.TaskQueues.Service.Infrastructure
                 isFinished = FinishTask(taskEntry, out remainingTasksCount, out processedTasksCount);
                 if (isFinished)
                 {
-                    NotificationService.TaskFinished(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.TaskID, workerID);
+                    NotificationService.TaskFinished(taskEntry.ClientID, taskEntry.QueueID, taskEntry.TaskID, workerID);
 
-                    bool isBarrierFinished = TryRemoveBarrierIfFinished(taskEntry.ComputationID, taskEntry.BarrierID);
+                    bool isBarrierFinished = TryRemoveBarrierIfFinished(taskEntry.QueueID, taskEntry.BarrierID);
                     if (isBarrierFinished)
                     {
-                        NotificationService.BarrierFinished(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.BarrierID);
+                        NotificationService.BarrierFinished(taskEntry.ClientID, taskEntry.QueueID, taskEntry.BarrierID);
                     }
 
                     if ((remainingTasksCount == 0) && (processedTasksCount == 0))
                     {
-                        NotificationService.QueueEmptied(taskEntry.ClientID, taskEntry.ComputationID);
+                        NotificationService.QueueEmptied(taskEntry.ClientID, taskEntry.QueueID);
                     }
                 }
             }
             return isRemoved && isFinished;
         }
 
-        public void RemoveProcessor(Guid computationID)
+        public void RemoveProcessor(Guid queueID)
         {
-            TaskQueueComputationProcessor processor = null;
-            bool isRemoved = Processors.TryRemove(computationID, out processor);
+            TaskQueueQueueProcessor processor = null;
+            bool isRemoved = Processors.TryRemove(queueID, out processor);
             if (isRemoved)
             {
                 processor.Stop();
@@ -107,7 +107,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
             Guid workerID = args.WorkerID;
 
             TaskQueueTaskEntry taskEntry = args.Task;
-            NotificationService.TaskAssigned(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.TaskID, workerID);
+            NotificationService.TaskAssigned(taskEntry.ClientID, taskEntry.QueueID, taskEntry.TaskID, workerID);
 
             TimeSpan executionTimeout = Configuration.ExecutionTimeout;
 
@@ -127,9 +127,9 @@ namespace Ois.TaskQueues.Service.Infrastructure
             {
                 processedEntry.StopTimer();
                 
-                Guid computationID = processedEntry.TaskEntry.ComputationID;
-                TaskQueueComputationProcessor processor = null;
-                bool isExists = Processors.TryGetValue(computationID, out processor);
+                Guid queueID = processedEntry.TaskEntry.QueueID;
+                TaskQueueQueueProcessor processor = null;
+                bool isExists = Processors.TryGetValue(queueID, out processor);
                 if (isExists)
                 {
                     processor.EnqueueTask(processedEntry.TaskEntry);
@@ -141,10 +141,10 @@ namespace Ois.TaskQueues.Service.Infrastructure
         {
             bool result = false;
 
-            Guid computationID = taskEntry.ComputationID;
+            Guid queueID = taskEntry.QueueID;
 
-            TaskQueueComputationProcessor processor = null;
-            bool isExists = Processors.TryGetValue(computationID, out processor);
+            TaskQueueQueueProcessor processor = null;
+            bool isExists = Processors.TryGetValue(queueID, out processor);
             if (isExists)
             {
                 result = processor.FinishTask(taskEntry);
@@ -156,12 +156,12 @@ namespace Ois.TaskQueues.Service.Infrastructure
             return result;
         }
 
-        private bool TryRemoveBarrierIfFinished(Guid computationID, Guid barrierID)
+        private bool TryRemoveBarrierIfFinished(Guid queueID, Guid barrierID)
         {
             bool result = false;
 
-            TaskQueueComputationProcessor processor = null;
-            bool isExists = Processors.TryGetValue(computationID, out processor);
+            TaskQueueQueueProcessor processor = null;
+            bool isExists = Processors.TryGetValue(queueID, out processor);
             if (isExists)
             {
                 result = processor.TryRemoveBarrierIfFinished(barrierID);

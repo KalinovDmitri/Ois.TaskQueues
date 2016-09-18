@@ -44,10 +44,35 @@ namespace Ois.TaskQueues.Service.Infrastructure.Tests
             Assert.IsNotNull(implementor);
             Assert.IsNotNull(implementor.BalancingService);
             Assert.IsNotNull(implementor.ClientService);
-            Assert.IsNotNull(implementor.ComputationService);
+            Assert.IsNotNull(implementor.QueueService);
             Assert.IsNotNull(implementor.NotificationService);
             Assert.IsNotNull(implementor.ProcessingService);
             Assert.IsNotNull(implementor.WorkerService);
+        }
+
+        [TestMethod]
+        public void IsQueueLifecycleWorksSuccessfully()
+        {
+            var implementor = Container.Resolve<TaskQueueServiceImplementor>();
+            var client = Container.Resolve<TaskQueueClientMock>();
+
+            Guid clientID = client.ClientID;
+
+            bool registered = implementor.RegisterClient(clientID, client);
+            Assert.IsTrue(registered);
+
+            Guid queueID = implementor.CreateQueue(clientID);
+            Assert.AreNotEqual(Guid.Empty, queueID);
+
+            Guid taskID = implementor.AddTask(queueID, "TEST", "{}");
+            Assert.AreNotEqual(Guid.Empty, taskID);
+
+            implementor.AcknowledgeTask(Guid.Empty, taskID);
+
+            implementor.RemoveQueue(queueID);
+
+            bool unregistered = implementor.UnregisterClient(clientID);
+            Assert.IsTrue(unregistered);
         }
         #endregion
     }

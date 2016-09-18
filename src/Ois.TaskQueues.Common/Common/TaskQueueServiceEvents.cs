@@ -9,7 +9,7 @@ namespace Ois.TaskQueues
 
         ClientConnected = 1,
 
-        ComputationCreated = 2,
+        QueueCreated = 2,
 
         TaskCreated = 4,
 
@@ -27,7 +27,7 @@ namespace Ois.TaskQueues
 
         QueueEmptied = 512,
 
-        ComputationFinished = 1024,
+        QueueRemoved = 1024,
 
         WorkerDisconnected = 2048,
 

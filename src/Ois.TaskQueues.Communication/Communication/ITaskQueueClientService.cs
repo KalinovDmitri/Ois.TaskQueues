@@ -11,16 +11,16 @@ namespace Ois.TaskQueues.Communication
         bool RegisterClient(Guid clientID, bool onlyOwnEvents = true, TaskQueueServiceEvents subscribedEvents = TaskQueueServiceEvents.All);
 
         [OperationContract]
-        Guid CreateComputation(Guid clientID);
+        Guid CreateQueue(Guid clientID);
 
         [OperationContract]
-        Guid AddTask(Guid computationID, string taskCategory, string taskData);
+        Guid AddTask(Guid queueID, string taskCategory, string taskData);
 
         [OperationContract]
-        Guid AddBarrier(Guid computationID);
+        Guid AddBarrier(Guid queueID);
 
         [OperationContract(IsOneWay = true, IsTerminating = false)]
-        void FinishComputation(Guid computationID);
+        void RemoveQueue(Guid queueID);
 
         [OperationContract]
         bool UnregisterClient(Guid clientID);

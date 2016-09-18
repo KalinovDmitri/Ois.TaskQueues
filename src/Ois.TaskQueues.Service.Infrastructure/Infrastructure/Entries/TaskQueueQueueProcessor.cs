@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Ois.TaskQueues.Service.Infrastructure
 {
-    public sealed class TaskQueueComputationProcessor
+    public sealed class TaskQueueQueueProcessor
     {
         #region Constants and fields
 
@@ -15,7 +15,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         private readonly TaskQueueWorkerService WorkerService;
 
-        public readonly TaskQueueComputationEntry Computation;
+        public readonly TaskQueueQueueEntry ProcessedQueue;
 
         private Task ProcessingTask;
         #endregion
@@ -27,22 +27,22 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         #region Properties
 
-        public int TasksCount => Computation.TasksCount;
+        public int TasksCount => ProcessedQueue.TasksCount;
 
-        public int ProcessedTasksCount => Computation.ProcessedTasksCount;
+        public int ProcessedTasksCount => ProcessedQueue.ProcessedTasksCount;
         #endregion
 
         #region Constructors
 
-        private TaskQueueComputationProcessor()
+        private TaskQueueQueueProcessor()
         {
             TokenSource = new CancellationTokenSource();
         }
 
-        public TaskQueueComputationProcessor(TaskQueueWorkerService workerService, TaskQueueComputationEntry computation) : this()
+        public TaskQueueQueueProcessor(TaskQueueWorkerService workerService, TaskQueueQueueEntry queue) : this()
         {
             WorkerService = workerService;
-            Computation = computation;
+            ProcessedQueue = queue;
         }
         #endregion
 
@@ -59,23 +59,27 @@ namespace Ois.TaskQueues.Service.Infrastructure
         {
             TokenSource.Cancel();
 
-            ProcessingTask.Wait();
-            ProcessingTask.Dispose();
+            Task processingTask = ProcessingTask;
+            if (processingTask != null)
+            {
+                processingTask.Wait();
+                processingTask.Dispose();
+            }
         }
 
         public bool FinishTask(TaskQueueTaskEntry taskEntry)
         {
-            return Computation.FinishTask(taskEntry);
+            return ProcessedQueue.FinishTask(taskEntry);
         }
 
         public void EnqueueTask(TaskQueueTaskEntry taskEntry)
         {
-            Computation.EnqueueTask(taskEntry);
+            ProcessedQueue.EnqueueTask(taskEntry);
         }
 
         public bool TryRemoveBarrierIfFinished(Guid barrierID)
         {
-            return Computation.TryRemoveBarrierIfFinished(barrierID);
+            return ProcessedQueue.TryRemoveBarrierIfFinished(barrierID);
         }
         #endregion
 
@@ -89,7 +93,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
                 if (isCanceled) break;
 
                 int workersCount = WorkerService.AvailableWorkersCount;
-                int tasksCount = Computation.TasksCount;
+                int tasksCount = ProcessedQueue.TasksCount;
 
                 if (workersCount > 0 && tasksCount > 0)
                 {
@@ -107,7 +111,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
             TaskQueueTaskEntry taskEntry = null;
             TaskQueueWorkerEntry workerEntry = null;
 
-            bool taskDequeued = Computation.TryDequeueTask(out taskEntry);
+            bool taskDequeued = ProcessedQueue.TryDequeueTask(out taskEntry);
             if (taskDequeued)
             {
                 bool workerDequeued = WorkerService.TryDequeueWorker(taskEntry.TaskCategory, out workerEntry);
@@ -116,18 +120,18 @@ namespace Ois.TaskQueues.Service.Infrastructure
                     bool isAssigned = workerEntry.AssignTask(taskEntry);
                     if (isAssigned)
                     {
-                        Computation.AddTaskToProcessed(taskEntry);
+                        ProcessedQueue.AddTaskToProcessed(taskEntry);
                         TaskAssigned?.Invoke(this, new TaskQueueTaskAssignedEventArgs(workerEntry.WorkerID, taskEntry));
                     }
                     else
                     {
-                        Computation.EnqueueTask(taskEntry);
+                        ProcessedQueue.EnqueueTask(taskEntry);
                         WorkerService.ReleaseWorker(workerEntry.WorkerID);
                     }
                 }
                 else
                 {
-                    Computation.EnqueueTask(taskEntry);
+                    ProcessedQueue.EnqueueTask(taskEntry);
                 }
             }
         }

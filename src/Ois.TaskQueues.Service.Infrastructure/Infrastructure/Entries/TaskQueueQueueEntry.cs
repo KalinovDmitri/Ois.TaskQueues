@@ -4,13 +4,13 @@ using System.Threading;
 
 namespace Ois.TaskQueues.Service.Infrastructure
 {
-    public sealed class TaskQueueComputationEntry
+    public sealed class TaskQueueQueueEntry
     {
         #region Constants and fields
 
         public readonly Guid ClientID;
 
-        public readonly Guid ComputationID;
+        public readonly Guid QueueID;
 
         private readonly Func<Guid, TaskQueueBarrierEntry> BarrierCreator;
 
@@ -34,7 +34,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         #region Constructors
         
-        private TaskQueueComputationEntry()
+        private TaskQueueQueueEntry()
         {
             BarrierID = Guid.NewGuid();
 
@@ -44,10 +44,10 @@ namespace Ois.TaskQueues.Service.Infrastructure
             BarriersQueue = new ConcurrentQueue<Guid>();
         }
 
-        public TaskQueueComputationEntry(Guid clientID, Guid computationID) : this()
+        public TaskQueueQueueEntry(Guid clientID, Guid queueID) : this()
         {
             ClientID = clientID;
-            ComputationID = computationID;
+            QueueID = queueID;
         }
         #endregion
 
@@ -55,21 +55,21 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         public override bool Equals(object obj)
         {
-            TaskQueueComputationEntry other = obj as TaskQueueComputationEntry;
+            TaskQueueQueueEntry other = obj as TaskQueueQueueEntry;
 
-            return (other != null) && (ComputationID == other.ComputationID);
+            return (other != null) && (QueueID == other.QueueID);
         }
 
         public override int GetHashCode()
         {
-            return ComputationID.GetHashCode();
+            return QueueID.GetHashCode();
         }
 
         public override string ToString()
         {
-            string identifier = ComputationID.ToString("B").ToUpperInvariant();
+            string identifier = QueueID.ToString("B").ToUpperInvariant();
 
-            return $"Computation {identifier}: {CountOfTasks} tasks";
+            return $"Queue {identifier}: {CountOfTasks} tasks";
         }
         #endregion
 
@@ -79,7 +79,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
         {
             TaskQueueBarrierEntry barrierEntry = Barriers.GetOrAdd(BarrierID, BarrierCreator);
 
-            TaskQueueTaskEntry taskEntry = new TaskQueueTaskEntry(ClientID, ComputationID, BarrierID, taskCategory, taskData);
+            TaskQueueTaskEntry taskEntry = new TaskQueueTaskEntry(ClientID, QueueID, BarrierID, taskCategory, taskData);
 
             barrierEntry.AddTask(taskEntry);
 
@@ -182,7 +182,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
         
         private TaskQueueBarrierEntry CreateBarrierEntry(Guid barrierID)
         {
-            return new TaskQueueBarrierEntry(ClientID, ComputationID, barrierID);
+            return new TaskQueueBarrierEntry(ClientID, QueueID, barrierID);
         }
 
         private bool RemoveFinishedBarrier(Guid barrierID)

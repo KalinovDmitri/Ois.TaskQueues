@@ -35,11 +35,9 @@
     <Compile Include="Infrastructure\Entries\TaskQueueBarrierEntry.cs" />
     <Compile Include="Infrastructure\Entries\TaskQueueBusyWorkerEntry.cs" />
     <Compile Include="Infrastructure\Entries\TaskQueueClientEntry.cs" />
-    <Compile Include="Infrastructure\Entries\TaskQueueComputationEntry.cs" />
-    <Compile Include="Infrastructure\Entries\TaskQueueComputationProcessor.cs" />
+    <Compile Include="Infrastructure\Entries\TaskQueueQueueEntry.cs" />
+    <Compile Include="Infrastructure\Entries\TaskQueueQueueProcessor.cs" />
     <Compile Include="Infrastructure\Entries\TaskQueueEventInfo.cs" />
-    <Compile Include="Infrastructure\Entries\TaskQueueItemEntry.cs" />
-    <Compile Include="Infrastructure\Entries\TaskQueueItemType.cs" />
     <Compile Include="Infrastructure\Entries\TaskQueueProcessedTaskEntry.cs" />
     <Compile Include="Infrastructure\Entries\TaskQueueTaskAssignedEventArgs.cs" />
     <Compile Include="Infrastructure\Entries\TaskQueueTaskEntry.cs" />

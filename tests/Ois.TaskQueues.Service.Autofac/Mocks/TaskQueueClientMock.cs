@@ -4,11 +4,13 @@ using NLog;
 
 namespace Ois.TaskQueues.Service.Infrastructure
 {
-    internal class TaskQueueClientMock : ITaskQueueClient
+    public class TaskQueueClientMock : ITaskQueueClient
     {
         #region Fields and properties
 
         private readonly ILogger Logger;
+
+        public readonly Guid ClientID;
 
         public bool OnlyOwnEvents => false;
 
@@ -17,7 +19,12 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         #region Constructors
 
-        public TaskQueueClientMock(ILogger logger)
+        private TaskQueueClientMock()
+        {
+            ClientID = Guid.NewGuid();
+        }
+
+        public TaskQueueClientMock(ILogger logger) : this()
         {
             Logger = logger;
         }

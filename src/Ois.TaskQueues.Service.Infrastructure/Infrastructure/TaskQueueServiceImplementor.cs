@@ -18,7 +18,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         public TaskQueueClientService ClientService { get; set; }
 
-        public TaskQueueComputationService ComputationService { get; set; }
+        public TaskQueueQueueService QueueService { get; set; }
 
         public TaskQueueWorkerService WorkerService { get; set; }
 
@@ -54,37 +54,37 @@ namespace Ois.TaskQueues.Service.Infrastructure
             return clientCreated;
         }
 
-        public Guid CreateComputation(Guid clientID)
+        public Guid CreateQueue(Guid clientID)
         {
-            Logger.Debug($"CreateComputation request: ClientID = {{{clientID}}}");
+            Logger.Debug($"CreateQueue request: ClientID = {{{clientID}}}");
 
-            Guid computationID = Guid.Empty;
+            Guid queueID = Guid.Empty;
 
-            TaskQueueComputationEntry computation = ComputationService.CreateComputation(clientID);
-            if (computation != null)
+            TaskQueueQueueEntry queue = QueueService.CreateQueue(clientID);
+            if (queue != null)
             {
-                NotificationService.ComputationCreated(clientID, computation.ComputationID);
+                NotificationService.QueueCreated(clientID, queue.QueueID);
 
-                ProcessingService.AddProcessor(computation);
-                computationID = computation.ComputationID;
+                ProcessingService.AddProcessor(queue);
+                queueID = queue.QueueID;
             }
 
-            Logger.Debug($"CreateComputation response: ComputationID = {{{computationID}}}");
+            Logger.Debug($"CreateQueue response: QueueID = {{{queueID}}}");
 
-            return computationID;
+            return queueID;
         }
 
-        public Guid AddTask(Guid computationID, string taskCategory, string taskData)
+        public Guid AddTask(Guid queueID, string taskCategory, string taskData)
         {
-            Logger.Debug($"AddTask request: ComputationID = {{{computationID}}}; category = {taskCategory}");
+            Logger.Debug($"AddTask request: QueueID = {{{queueID}}}; Category = {taskCategory}");
 
             Guid taskID = Guid.Empty;
 
-            TaskQueueTaskEntry taskEntry = ComputationService.AddTask(computationID, taskCategory, taskData);
+            TaskQueueTaskEntry taskEntry = QueueService.AddTask(queueID, taskCategory, taskData);
             if (taskEntry != null)
             {
                 taskID = taskEntry.TaskID;
-                NotificationService.TaskAdded(taskEntry.ClientID, taskEntry.ComputationID, taskEntry.TaskID);
+                NotificationService.TaskAdded(taskEntry.ClientID, taskEntry.QueueID, taskEntry.TaskID);
                 BalancingService.TaskAdded();
             }
 
@@ -93,16 +93,16 @@ namespace Ois.TaskQueues.Service.Infrastructure
             return taskID;
         }
 
-        public Guid AddBarrier(Guid computationID)
+        public Guid AddBarrier(Guid queueID)
         {
-            Logger.Debug($"AddBarrier request; Computation ID = {{{computationID}}}");
+            Logger.Debug($"AddBarrier request; QueueID = {{{queueID}}}");
 
             Guid barrierID = Guid.Empty;
 
-            TaskQueueBarrierEntry barrier = ComputationService.AddBarrier(computationID);
+            TaskQueueBarrierEntry barrier = QueueService.AddBarrier(queueID);
             if (barrier != null)
             {
-                NotificationService.BarrierAdded(barrier.ClientID, barrier.ComputationID, barrier.BarrierID);
+                NotificationService.BarrierAdded(barrier.ClientID, barrier.QueueID, barrier.BarrierID);
                 barrierID = barrier.BarrierID;
             }
 
@@ -111,18 +111,18 @@ namespace Ois.TaskQueues.Service.Infrastructure
             return barrierID;
         }
 
-        public void FinishComputation(Guid computationID)
+        public void RemoveQueue(Guid queueID)
         {
-            Logger.Debug($"Enter FinishComputation: ComputationID = {{{computationID}}}");
+            Logger.Debug($"Enter RemoveQueue: QueueID = {{{queueID}}}");
 
-            TaskQueueComputationEntry computation = ComputationService.FinishComputation(computationID);
-            if (computation != null)
+            TaskQueueQueueEntry queue = QueueService.RemoveQueue(queueID);
+            if (queue != null)
             {
-                NotificationService.ComputationFinished(computation.ClientID, computation.ComputationID);
-                ProcessingService.RemoveProcessor(computation.ComputationID);
+                NotificationService.QueueRemoved(queue.ClientID, queue.QueueID);
+                ProcessingService.RemoveProcessor(queue.QueueID);
             }
 
-            Logger.Debug("Exit FinishComputation");
+            Logger.Debug("Exit RemoveQueue");
         }
 
         public bool UnregisterClient(Guid clientID)

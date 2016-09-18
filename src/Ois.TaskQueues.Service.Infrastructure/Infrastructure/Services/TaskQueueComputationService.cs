@@ -4,69 +4,69 @@ using System.Threading;
 
 namespace Ois.TaskQueues.Service.Infrastructure
 {
-    public sealed class TaskQueueComputationService
+    public sealed class TaskQueueQueueService
     {
         #region Constants and fields
         
-        private readonly ConcurrentDictionary<Guid, TaskQueueComputationEntry> Computations;
+        private readonly ConcurrentDictionary<Guid, TaskQueueQueueEntry> Queues;
         #endregion
 
         #region Constructors
 
-        public TaskQueueComputationService()
+        public TaskQueueQueueService()
         {
-            Computations = new ConcurrentDictionary<Guid, TaskQueueComputationEntry>();
+            Queues = new ConcurrentDictionary<Guid, TaskQueueQueueEntry>();
         }
         #endregion
 
         #region Public class methods
 
-        public TaskQueueComputationEntry CreateComputation(Guid clientID)
+        public TaskQueueQueueEntry CreateQueue(Guid clientID)
         {
-            Guid computationID = Guid.NewGuid();
+            Guid queueID = Guid.NewGuid();
 
-            TaskQueueComputationEntry computation = new TaskQueueComputationEntry(clientID, computationID);
+            TaskQueueQueueEntry queue = new TaskQueueQueueEntry(clientID, queueID);
 
-            bool isAdded = Computations.TryAdd(computationID, computation);
+            bool isAdded = Queues.TryAdd(queueID, queue);
             
-            return (isAdded) ? computation : null;
+            return (isAdded) ? queue : null;
         }
 
-        public TaskQueueTaskEntry AddTask(Guid computationID, string taskCategory, string taskData)
+        public TaskQueueTaskEntry AddTask(Guid queueID, string taskCategory, string taskData)
         {
             TaskQueueTaskEntry taskEntry = null;
 
-            TaskQueueComputationEntry computation = null;
-            bool isExists = Computations.TryGetValue(computationID, out computation);
+            TaskQueueQueueEntry queue = null;
+            bool isExists = Queues.TryGetValue(queueID, out queue);
             if (isExists)
             {
-                taskEntry = computation.AddTask(taskCategory, taskData);
+                taskEntry = queue.AddTask(taskCategory, taskData);
             }
 
             return taskEntry;
         }
 
-        public TaskQueueBarrierEntry AddBarrier(Guid computationID)
+        public TaskQueueBarrierEntry AddBarrier(Guid queueID)
         {
             TaskQueueBarrierEntry barrier = null;
             
-            TaskQueueComputationEntry computation = null;
-            bool isExists = Computations.TryGetValue(computationID, out computation);
+            TaskQueueQueueEntry queue = null;
+            bool isExists = Queues.TryGetValue(queueID, out queue);
             if (isExists)
             {
-                barrier = computation.AddBarrier();
+                barrier = queue.AddBarrier();
             }
 
             return barrier;
         }
 
-        public TaskQueueComputationEntry FinishComputation(Guid computationID)
+        public TaskQueueQueueEntry RemoveQueue(Guid queueID)
         {
-            TaskQueueComputationEntry computation = null;
+            TaskQueueQueueEntry queue = null;
 
-            bool isRemoved = Computations.TryRemove(computationID, out computation);
+            bool isRemoved = Queues.TryRemove(queueID, out queue);
 
-            return (isRemoved) ? computation : null;
+            return (isRemoved) ? queue : null;
         }
         #endregion
     }

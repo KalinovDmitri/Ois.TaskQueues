@@ -111,7 +111,7 @@ namespace Ois.TaskQueues.Communication
             return result;
         }
 
-        public Guid CreateComputation()
+        public Guid CreateQueue()
         {
             if (IsDisposed)
             {
@@ -122,11 +122,11 @@ namespace Ois.TaskQueues.Communication
                 throw new InvalidOperationException(ClientNotRegisteredMessage);
             }
 
-            Guid computationID = Service.CreateComputation(ClientID);
-            return computationID;
+            Guid queueID = Service.CreateQueue(ClientID);
+            return queueID;
         }
 
-        public Guid CreateTask(Guid computationID, string taskCategory, string taskData)
+        public Guid CreateTask(Guid queueID, string taskCategory, string taskData)
         {
             if (IsDisposed)
             {
@@ -137,11 +137,11 @@ namespace Ois.TaskQueues.Communication
                 throw new InvalidOperationException(ClientNotRegisteredMessage);
             }
 
-            Guid taskID = Service.AddTask(computationID, taskCategory, taskData);
+            Guid taskID = Service.AddTask(queueID, taskCategory, taskData);
             return taskID;
         }
 
-        public Guid CreateBarrier(Guid computationID)
+        public Guid CreateBarrier(Guid queueID)
         {
             if (IsDisposed)
             {
@@ -152,11 +152,11 @@ namespace Ois.TaskQueues.Communication
                 throw new InvalidOperationException(ClientNotRegisteredMessage);
             }
 
-            Guid barrierID = Service.AddBarrier(computationID);
+            Guid barrierID = Service.AddBarrier(queueID);
             return barrierID;
         }
 
-        public void FinishComputation(Guid computationID)
+        public void RemoveQueue(Guid queueID)
         {
             if (IsDisposed)
             {
@@ -167,7 +167,7 @@ namespace Ois.TaskQueues.Communication
                 throw new InvalidOperationException(ClientNotRegisteredMessage);
             }
 
-            Service.FinishComputation(computationID);
+            Service.RemoveQueue(queueID);
         }
 
         public bool Unregister()

@@ -13,7 +13,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
 
         public readonly Guid ClientID;
 
-        public readonly Guid ComputationID;
+        public readonly Guid QueueID;
 
         public readonly Guid BarrierID;
 
@@ -41,10 +41,10 @@ namespace Ois.TaskQueues.Service.Infrastructure
             ProcessedTasks = new ConcurrentDictionary<Guid, TaskQueueTaskEntry>();
         }
 
-        public TaskQueueBarrierEntry(Guid clientID, Guid computationID, Guid barrierID) : this()
+        public TaskQueueBarrierEntry(Guid clientID, Guid queueID, Guid barrierID) : this()
         {
             ClientID = clientID;
-            ComputationID = computationID;
+            QueueID = queueID;
             BarrierID = barrierID;
         }
         #endregion
@@ -55,7 +55,7 @@ namespace Ois.TaskQueues.Service.Infrastructure
         {
             TaskQueueBarrierEntry other = obj as TaskQueueBarrierEntry;
 
-            return (other != null) && (ComputationID == other.ComputationID) && (BarrierID == other.BarrierID);
+            return (other != null) && (QueueID == other.QueueID) && (BarrierID == other.BarrierID);
         }
 
         public override int GetHashCode()

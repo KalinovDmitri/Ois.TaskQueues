@@ -19,7 +19,7 @@ namespace Ois.TaskQueues.Service.Modules
         {
             base.Load(builder);
 
-            builder.RegisterType<TaskQueueClientMock>().As<ITaskQueueClient>().InstancePerDependency();
+            builder.RegisterType<TaskQueueClientMock>().As<ITaskQueueClient, TaskQueueClientMock>().InstancePerDependency();
         }
         #endregion
     }
